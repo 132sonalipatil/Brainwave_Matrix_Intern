@@ -1,0 +1,96 @@
+-- Create Database
+CREATE DATABASE LibraryDB;
+
+
+-- Table: Authors
+CREATE TABLE Authors (
+    AuthorID SERIAL PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Bio TEXT
+);
+
+-- Table: Categories
+CREATE TABLE Categories (
+    CategoryID SERIAL PRIMARY KEY,
+    CategoryName VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Table: Books
+CREATE TABLE Books (
+    BookID SERIAL PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    AuthorID INT,
+    CategoryID INT,
+    ISBN VARCHAR(20) UNIQUE NOT NULL,
+    PublishedYear INT,
+    AvailableCopies INT DEFAULT 1,
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID) ON DELETE SET NULL,
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE SET NULL
+);
+
+-- Table: Members
+CREATE TABLE Members (
+    MemberID SERIAL PRIMARY KEY,
+    FullName VARCHAR(255) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    PhoneNumber VARCHAR(15),
+    Address TEXT,
+    MembershipDate DATE DEFAULT CURRENT_DATE
+);
+
+-- Table: Loans
+CREATE TABLE Loans (
+    LoanID SERIAL PRIMARY KEY,
+    BookID INT,
+    MemberID INT,
+    LoanDate DATE DEFAULT CURRENT_DATE,
+    DueDate DATE NOT NULL,
+    ReturnDate DATE,
+    Status VARCHAR(20) CHECK (Status IN ('Borrowed', 'Returned')) DEFAULT 'Borrowed',
+    FOREIGN KEY (BookID) REFERENCES Books(BookID) ON DELETE CASCADE,
+    FOREIGN KEY (MemberID) REFERENCES Members(MemberID) ON DELETE CASCADE
+);
+
+-- Table: Users (Librarians/Admins)
+CREATE TABLE Users (
+    UserID SERIAL PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Role VARCHAR(20) CHECK (Role IN ('Librarian', 'Admin')) NOT NULL
+);
+---------------------------Inserting the data ----------------------------------------------------
+
+
+-- Insert Authors
+INSERT INTO Authors (Name, Bio) VALUES 
+('J.K. Rowling', 'Author of Harry Potter series'),
+('George Orwell', 'Author of 1984 and Animal Farm');
+
+-- Insert Categories
+INSERT INTO Categories (CategoryName) VALUES 
+('Fiction'), ('Science Fiction'), ('Mystery');
+
+-- Insert Books
+INSERT INTO Books (Title, AuthorID, CategoryID, ISBN, PublishedYear, AvailableCopies) VALUES 
+('Harry Potter and the Sorcerer''s Stone', 1, 1, '978-0747532699', 1997, 5),
+('1984', 2, 2, '978-0451524935', 1949, 3);
+
+-- Insert Members
+INSERT INTO Members (FullName, Email, PhoneNumber, Address) VALUES 
+('Alice Johnson', 'alice@example.com', '9876543210', '123 Main St'),
+('Bob Smith', 'bob@example.com', '8765432109', '456 Park Ave');
+
+-- Insert Loans
+INSERT INTO Loans (BookID, MemberID, DueDate) VALUES 
+(1, 1, CURRENT_DATE + INTERVAL '14 days'),
+(2, 2, CURRENT_DATE + INTERVAL '14 days');
+
+-- Insert Users
+INSERT INTO Users (Username, PasswordHash, Role) VALUES 
+('admin', 'hashed_password_here', 'Admin'),
+('librarian1', 'hashed_password_here', 'Librarian');
+
+
+
+--------------------------- Executing the query -------------
+SELECT * FROM Authors;
